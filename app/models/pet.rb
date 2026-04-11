@@ -1,0 +1,86 @@
+class Pet < ApplicationRecord
+  
+  STAGES = {
+    0 => { name: "egg",   sprite: "🥚", ticks_to_evolve: 20  },
+    1 => { name: "baby",  sprite: "🐣", ticks_to_evolve: 120 },
+    2 => { name: "child", sprite: "🐥", ticks_to_evolve: 360 },
+    3 => { name: "teen",  sprite: "🐤", ticks_to_evolve: 720 }, 
+    4 => { name: "adult", sprite: "🦆", ticks_to_evolve: 1440 }, # 24 hrs
+    5 => { name: "elder", sprite: "🦉", ticks_to_evolve: nil  },
+    6 => { name: "dead",  sprite: "💀", ticks_to_evolve: nil  },
+  }.freeze()
+
+  POOP_EVERY = 30 # gross, yes i know
+  validates :name, presence: true, length: { maximum: 20 }
+  validates :stage, inclusion: { in: 0..6 }
+  validates :hunger, numericality: { in: 0..100 }
+  validates :happiness, numericality: { in: 0..100 }
+  validates :energy, numericality: { in: 0..100 }
+  validates :hygiene, numericality: { in: 0..100 }
+  validates :health, numericality: { in: 0..100 }
+  def stage_info = STAGES[stage]
+  def stage_name = stage_info[:name]
+  def stage_sprite = stage_info[:sprite]
+  def alive? = stage < 6
+  def dead? = stage == 6
+  def egg? = stage == 0
+  def hatched? = stage >= 1
+  def mood
+    case happiness
+    when 80..100 then "amazing!!"
+    when 60..79 then "good!"
+    when 40..59 then "okay.."
+    when 20..39 then "bad!"
+    else "awful!!"
+    end
+  end
+
+  # actions
+  
+  def feed!(food_type = :normal)
+    return { ok: false, msg: "#{name} can't eat yet — still in the egg! :c" } if egg?
+    return { ok: false, msg: "#{name} is sleeping... shhh :3" } if sleeping?
+    return { ok: false, msg: "#{name} is gone, ya can't feed her anymore :c" } if dead?
+
+    nutrition, weight_gain, happiness_gain = case food_type.to_sym
+      when :meal then [40, 8, 10]
+      when :snack then [20, 4, 20]
+      when :veggie then [35, 2, 5]
+      else [30, 5, 15]
+    end
+    
+    self.hunger = clamp(hunger - nutrition, 0, 100)
+    self.weight = clamp(weight + weight_gain, 0, 100)
+    self.happiness = clamp(happiness + happiness_gain, 0, 100)
+    save! # why does this have an exclamation mark its so goofy i love ruby
+    { ok: true, msg: "#{name} ate happily!!!! :3" }
+  end
+  
+  def play!
+  
+  end
+
+  def sleep_action!
+    
+  end
+
+  def clean!
+    
+  end
+
+  def discipline!
+    
+  end
+
+  def medicine!
+    
+  end
+
+  def tick!
+    
+  end
+
+  def evolve!
+    
+  end
+end
