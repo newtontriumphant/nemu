@@ -57,23 +57,53 @@ class Pet < ApplicationRecord
   end
   
   def play!
-  
+    return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
+    return { ok: false, msg: "#{name} is too sleepy to play :c" } if sleeping?
+    return { ok: false, msg: "#{name} is gone :c" } if dead?
+    return { ok: false, msg: "#{name} is too hungry to play! feed them :c" } if hunger >= 80
+    self.happiness = clamp(happiness + 25, 0, 100)
+    self.energy = clamp(energy - 20, 0, 100)
+    self.hunger = clamp(hunger + 10, 0, 100)
+    self.weight = clamp(weight - 3, 0, 100)
+    save!
+    { ok: true, msg: "#{name} played and and lost some weight :)" }
   end
 
   def sleep_action!
-    
+    return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
+    return { ok: false, msg: "#{name} is gone :c" } if dead?
+    if sleeping?
+      self.sleeping = false
+      self.energy = clamp(energy + 40, 0, 100)
+      self.happiness = clamp(happiness + 10, 0, 100)
+      msg = "#{name} woke up feeling refreshed!!"
+    else
+      self.sleeping = true
+      { ok: true, msg: "#{name} is drifting offf...." }
+    end
+    save!
+    { ok: true, msg: msg }
   end
 
   def clean!
-    
+    return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
+    return { ok: false, msg: "#{name} is gone :c" } if dead?
+
+    self.hygiene = clamp(hygiene + 40, 0, 100)
+    self.happiness = clamp(happiness - 20, 0, 100) if poop_on_screen? # yes im removing happiness cats hate showers >:3
+    self.poop_on_screen = false
+    save!
+    { ok: true, msg: "#{name} is squeaky clean! they kinda hated it tho :(()" }
   end
 
   def discipline!
-    
+    return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
+    return { ok: false, msg: "#{name} is gone :c" } if dead?
   end
 
   def medicine!
-    
+    return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
+    return { ok: false, msg: "#{name} is gone :c" } if dead?
   end
 
   def tick!
