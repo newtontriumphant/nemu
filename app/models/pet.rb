@@ -20,7 +20,7 @@ class Pet < ApplicationRecord
   validates :health, numericality: { in: 0..100 }
   def stage_info = STAGES[stage]
   def stage_name = stage_info[:name]
-  def stage_sprite = stage_info[:sprite]
+  def sprite = stage_info[:sprite]
   def alive? = stage < 6
   def dead? = stage == 6
   def egg? = stage == 0
@@ -79,7 +79,7 @@ class Pet < ApplicationRecord
       msg = "#{name} woke up feeling refreshed!!"
     else
       self.sleeping = true
-      { ok: true, msg: "#{name} is drifting offf...." }
+      msg = "#{name} is drifting offf..."
     end
     save!
     { ok: true, msg: msg }
@@ -99,18 +99,99 @@ class Pet < ApplicationRecord
   def discipline!
     return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
     return { ok: false, msg: "#{name} is gone :c" } if dead?
+
+    self.discipline = clamp(self.discipline + 15, 0, 100)
+    self.happiness = clamp(happiness - 10, 0, 100)
+    save!
+    { ok: true, msg: "#{name} got some tough love :/" }
   end
 
   def medicine!
-    return { ok: false, msg: "#{name} is still in the egg! :c" } if egg?
     return { ok: false, msg: "#{name} is gone :c" } if dead?
+    return { ok: false, msg: "#{name} isn't sick!!!" } unless sick?
+    self.sick = false
+    self.health = clamp(health + 30, 0, 100)
+    self.happiness = clamp(happiness - 10, 0, 100)
+    save!
+    { ok: true, msg: "#{name} took their medicine and is feeling better, although they retched a bit :(" }
   end
 
   def tick!
-    
+    return if dead?
+    elapsed = calculate_elapsed_ticks
+    return if elapsed < 1 # this prevents pet from overaging
+    elapsed.times { apply_single_tick }
+    self.last_tick_at = Time.current
+    save!
   end
 
-  def evolve!
-    
+  def check_death!
+    return if dead?
+    cause = nil
+    cause = "starvation" if hunger >= 100
+    cause = "exhaustion" if energy <= 0 && !sleeping?
+    cause = "illness" if health <= 0
+    if cause
+      self.stage = 6
+      self.death_cause = cause
+      save!
+    end  
   end
+
+  private
+  def clamp(val, min, max) = [[val, min].max, max].min
+
+  def calculate_elapsed_ticks
+    return 1 unless last_tick_at
+    (Time.current - last_tick_at).to_i / 60
+  end
+
+  def apply_single_tick
+    self.age_ticks += 1
+    
+    unless sleeping?
+      self.hunger = clamp(hunger + 2, 0, 100)
+      self.happiness = clamp(happiness - 1, 0, 100)
+      self.energy = clamp(energy - 1, 0, 100)
+      self.hygiene = clamp(hygiene - 1, 0, 100)
+    else
+      self.hunger = clamp(hunger + 1, 0, 100)
+      self.energy = clamp(energy + 2, 0, 100)
+    end
+
+    # chance to get sick at random b.o. health
+    if !sick? && rand < sickness_probability
+      self.sick = true
+      self.health = clamp(health - 10, 0, 100)
+    end
+
+    self.health = clamp(health - 3, 0, 100) if sick?
+
+    if hatched? && age_ticks % POOP_EVERY == 0
+      self.poop_on_screen = true
+      self.hygiene = clamp(hygiene - 20, 0, 100)
+    end
+  end
+
+    def sickness_probability
+      base = 0.002
+      base += 0.01 if hunger > 70
+
+      base += 0.01 if hygiene < 30
+
+      base += 0.01 if happiness < 20
+      base
+    end
+
+    def should_evolve?
+      evo = STAGES[stage][:ticks_to_evolve]
+      return false if evo.nil? || stage >= 5
+      age_ticks >= evo
+    end
+
+    def evolve!
+      self.stage += 1
+      self.age_ticks = 0
+      self.health = clamp(health + 10, 0, 100)
+    end
 end
