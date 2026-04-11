@@ -171,27 +171,30 @@ class Pet < ApplicationRecord
       self.poop_on_screen = true
       self.hygiene = clamp(hygiene - 20, 0, 100)
     end
+
+    evolve! if should_evolve?
+    check_death!
   end
 
-    def sickness_probability
-      base = 0.002
-      base += 0.01 if hunger > 70
+  def sickness_probability
+    base = 0.002
+    base += 0.01 if hunger > 70
 
-      base += 0.01 if hygiene < 30
+    base += 0.01 if hygiene < 30
 
-      base += 0.01 if happiness < 20
-      base
-    end
+    base += 0.01 if happiness < 20
+    base
+  end
 
-    def should_evolve?
-      evo = STAGES[stage][:ticks_to_evolve]
-      return false if evo.nil? || stage >= 5
-      age_ticks >= evo
-    end
+  def should_evolve?
+    evo = STAGES[stage][:ticks_to_evolve]
+    return false if evo.nil? || stage >= 5
+    age_ticks >= evo
+  end
 
-    def evolve!
-      self.stage += 1
-      self.age_ticks = 0
-      self.health = clamp(health + 10, 0, 100)
-    end
+  def evolve!
+    self.stage += 1
+    self.age_ticks = 0
+    self.health = clamp(health + 10, 0, 100)
+  end
 end
