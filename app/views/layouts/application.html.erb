@@ -1,15 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
   <head>
-    <title>Nemu</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>nemu the sleepy tamagotchi :3</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💤</text></svg>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300..600&display=swap" rel="stylesheet">
 
-    <%= stylesheet_link_tag "application" %>
-  </head>
+    <style>
+      :root {
+        --font-display: 'Space Mono', 'Courier New', monospace;
+        --font-body:    'Inter', 'Helvetica Neue', sans-serif;
+        --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+        --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+        --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+        --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+        --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+        --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+        --space-1:  0.25rem;  --space-2:  0.5rem;   --space-3:  0.75rem;
+        --space-4:  1rem;     --space-5:  1.25rem;  --space-6:  1.5rem;
+        --space-8:  2rem;     --space-10: 2.5rem;   --space-12: 3rem;
+        --space-16: 4rem;
+        --radius-sm:   0.25rem;
+        --radius-md:   0.5rem;
+        --radius-lg:   0.75rem;
+        --radius-full: 9999px;
+        --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
 
-  <body>
-    <%= yield %>
-  </body>
-</html>
+      :root, [data-theme="dark"] { /* i normally don't do ld toggles since it's a ind for AI but i feel like once cant hurt */
+        --bg:        #0e0e0f;
+        --surface:   #141416;
+        --surface-2: #1a1a1c;
+        --surface-3: #212124;
+        --border:    rgba(255,255,255,0.08);
+        --divider:   rgba(255,255,255,0.05);
+        --text:      #e8e8e6;
+        --text-muted:#8a8a87;
+        --text-faint:#4a4a48;
+        --accent:        #b8a0e8;
+        --accent-hover:  #cbb8f0;
+        --accent-dim:    rgba(184,160,232,0.15);
+        --accent-dimmer: rgba(184,160,232,0.08);
+        --stat-green:  #6fcf70;
+        --stat-yellow: #f2c84b;
+        --stat-orange: #f4924b;
+        --stat-red:    #e05454;
+        --stat-blue:   #5bbcf5;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+      }
+
+      [data-theme="light"] {
+        --bg:        #f5f4f0;
+        --surface:   #fafaf8;
+        --surface-2: #ffffff;
+        --surface-3: #f0efe9;
+        --border:    rgba(0,0,0,0.08);
+        --divider:   rgba(0,0,0,0.05);
+        --text:      #1a1a1e;
+        --text-muted:#5a5a5e;
+        --text-faint:#aaaaaa;
+        --accent:        #7b5cbf;
+        --accent-hover:  #6347a8;
+        --accent-dim:    rgba(123,92,191,0.12);
+        --accent-dimmer: rgba(123,92,191,0.06);
+        --stat-green:  #2d8e30;
+        --stat-yellow: #b08a00;
+        --stat-orange: #c05c10;
+        --stat-red:    #b02020;
+        --stat-blue:   #2070b0;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+        --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-height: 100dvh;
+        font-family: var(--font-body);
+        font-size: var(--text-base);
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.6;
+      }
+
+      img, svg { display: block; max-width: 100%; }
+      button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+      a, button {
+        transition: color var(--transition), background var(--transition), opacity var(--transition), transform var(--transition);
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: var(--radius-sm);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
