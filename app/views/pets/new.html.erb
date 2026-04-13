@@ -1,0 +1,31 @@
+<div class="init-screen">
+  <div class="init-header">
+    <div>$ initialize_companion --interactive</div>
+    <div>running nemu's creation wizard...</div>
+    <br>
+    <div>choose a name for your new companion!!</div>
+    <div>they will hatch as an <span class="hl">egg</span> and evolve over time IF you treat them right!</div>
+  </div>
+
+  <%= form_with model: @pet, url: pets_path do |f| %>
+    <% if @pet.errors.any? %>
+      <% @pet.errors.full_messages.each do |msg| %>
+        <div class="form-error"><%= msg %></div>
+      <% end %>
+    <% end %>
+
+    <div class="form-line">
+      <span class="form-prompt">$</span>
+      <span class="form-label">name:</span>
+      <%= f.text_field :name,
+            placeholder: "enter your cutie's name...",
+            class: "form-input",
+            maxlength: 20,
+            autocomplete: "off",
+            autofocus: true %>
+    </div>
+
+    <br>
+    <%= f.submit "hatch!", class: "btn btn--primary" %>
+  <% end %>
+</div>
