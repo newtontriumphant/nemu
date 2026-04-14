@@ -145,7 +145,7 @@ class Pet < ApplicationRecord
 
   def calculate_elapsed_ticks
     return 1 unless last_tick_at
-    (Time.current - last_tick_at).to_i / 60
+    (Time.current - last_tick_at).to_i / 10
   end
 
   def apply_single_tick
