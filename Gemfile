@@ -3,7 +3,7 @@ ruby "3.2.2"
 
 gem "rails", "~> 7.1"
 gem "puma", ">= 5.0"
-gem "sqlite3", "~> 1.4"
+gem "pg"
 gem "importmap-rails"
 gem "turbo-rails"
 gem "stimulus-rails"
