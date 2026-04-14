@@ -1,1 +1,238 @@
 <% if @pet.dead? %>
+    <%# dead state%>
+    <div class="dead-screen">
+        <div class="dead-sprite">😵</div>
+        <div class="dead-title"><%= @pet.name %> has passed away :(</div>
+        <div class="dead-cause">cause: <%= @pet.death_cause %></div>
+        <%= link_to "$ hatch a new companion", new_pet_path, class: "boot-action" %>
+    </div>
+
+<% else %>
+
+    <div class="pet-display" id="pet-display">
+        <div class="pet-sprite-box <%= 'sleeping' if @pet.sleeping? %>" id="sprite-box">
+            <span id="pet-sprite"><%= @pet.sprite %></span>
+        </div>
+
+        <div class="pet-info">
+            <div class="pet-name-row">
+                <span class="pet-name" id="pet-name"><%= @pet.name %></span>
+                <span class="pet-stage" id="pet-stage"><%= @pet.stage_name %></span>
+            </div>
+            <div class="pet-meta">
+                <span>age: <span class="v" id="pet-age"><%= @pet.age_ticks %></span> ticks</span>
+                <span>weight: <span class="v" id="pet-weight"><%= @pet.weight %></span></span>
+                <span>mood: <span class="v" id="pet-mood"><%= @pet.mood %></span></span>
+            </div>
+            <div class="pet-flags" id="pet-flags">
+                <% if @pet.sleeping? %>
+                <span class="flag flag--sleep" data-flag="sleep">💤 sleeping</span>
+                <% end %>
+                <% if @pet.sick? %>
+                <span class="flag flag--sick" data-flag="sick">🤒 sick</span>
+                <% end %>
+                <% if @pet.poop_on_screen? %>
+                <span class="flag flag--poop" data-flag="poop">💩 messy</span>
+                <% end %>
+            </div>  
+        </div>
+    </div>
+
+    <div class="panel gap-4">
+    <div class="panel-header">status readout</div>
+    <div class="panel-body">
+      <div class="stats-list">
+
+        <div class="stat-row" id="stat-hunger">
+          <div class="stat-header">
+            <span class="stat-label">hunger</span>
+            <span class="stat-value"><%= @pet.hunger %></span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:<%= @pet.hunger %>%; background:<%= @pet.hunger > 70 ? 'var(--stat-red)' : @pet.hunger > 40 ? 'var(--stat-yellow)' : 'var(--stat-green)' %>;"></div>
+          </div>
+        </div>
+
+        <div class="stat-row" id="stat-happiness">
+          <div class="stat-header">
+            <span class="stat-label">happiness</span>
+            <span class="stat-value"><%= @pet.happiness %></span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:<%= @pet.happiness %>%; background:<%= @pet.happiness < 30 ? 'var(--stat-red)' : @pet.happiness < 60 ? 'var(--stat-yellow)' : 'var(--stat-green)' %>;"></div>
+          </div>
+        </div>
+
+        <div class="stat-row" id="stat-energy">
+          <div class="stat-header">
+            <span class="stat-label">energy</span>
+            <span class="stat-value"><%= @pet.energy %></span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:<%= @pet.energy %>%; background:<%= @pet.energy < 30 ? 'var(--stat-red)' : @pet.energy < 60 ? 'var(--stat-yellow)' : 'var(--stat-green)' %>;"></div>
+          </div>
+        </div>
+
+        <div class="stat-row" id="stat-hygiene">
+          <div class="stat-header">
+            <span class="stat-label">hygiene</span>
+            <span class="stat-value"><%= @pet.hygiene %></span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:<%= @pet.hygiene %>%; background:<%= @pet.hygiene < 30 ? 'var(--stat-red)' : @pet.hygiene < 60 ? 'var(--stat-yellow)' : 'var(--stat-green)' %>;"></div>
+          </div>
+        </div>
+
+        <div class="stat-row" id="stat-health">
+          <div class="stat-header">
+            <span class="stat-label">health</span>
+            <span class="stat-value"><%= @pet.health %></span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:<%= @pet.health %>%; background:<%= @pet.health < 30 ? 'var(--stat-red)' : @pet.health < 60 ? 'var(--stat-yellow)' : 'var(--stat-green)' %>;"></div>
+          </div>
+        </div>
+
+        <div class="stat-row" id="stat-discipline">
+          <div class="stat-header">
+            <span class="stat-label">discipline</span>
+            <span class="stat-value"><%= @pet.discipline %></span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" style="width:<%= @pet.discipline %>%; background:var(--text-faint);"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="panel gap-4" id="actions-panel">
+    <div class="panel-header">actions</div>
+    <div class="actions-grid" id="actions-grid">
+
+      <button class="btn" onclick="act('feed','food_type=meal')"   title="meal: filling, moderate weight">feed meal!</button>
+      <button class="btn" onclick="act('feed','food_type=snack')"  title="snack: less filling, more happy">feed snack!</button>
+      <button class="btn" onclick="act('feed','food_type=veggie')" title="veggie: filling, low weight gain">feed veggie!</button>
+
+      <div class="actions-sep"></div>
+
+      <button class="btn" onclick="act('play')">play!</button>
+      <button class="btn" onclick="act('sleep_action')" id="btn-sleep">
+        <%= @pet.sleeping? ? 'wake!' : 'sleep!' %>
+      </button>
+      <button class="btn" onclick="act('clean')">clean!</button>
+
+      <div class="actions-sep"></div>
+
+      <button class="btn" onclick="act('discipline')" title="tough love">discipline!</button>
+      <button class="btn" onclick="act('medicine')"   title="only works when sick">medicine!</button>
+
+    </div>
+
+    <div class="msg-log" id="msg-log">
+      <span class="ps">&gt;</span>
+      <span class="msg-text" id="msg-text">waiting for input...<span class="cursor"></span></span>
+    </div>
+  </div>
+<% end %>
+
+<script>
+    var PET_ID = <%= @pet.id %>;
+    var CSRF = document.querySelector('meta[name="csrf-token"]').content;
+    var tickTimer = null;
+
+    function act(action, queryStr) {
+    var url  = '/pets/' + PET_ID + '/' + action;
+    var body = queryStr || '';
+
+    setButtons(true);
+
+    fetch(url, {
+      method:  'POST',
+      headers: { 'X-CSRF-Token': CSRF, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:    body
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) { applyUpdate(d); })
+    .catch(function()  { showMsg('connection error :c', false); })
+    .finally(function() { setButtons(false); });
+    }
+
+    function applyUpdate(d) {
+    document.getElementById('pet-sprite').textContent = d.sprite;
+    document.getElementById('pet-name').textContent   = d.name;
+    document.getElementById('pet-stage').textContent  = d.stage_name;
+    document.getElementById('pet-age').textContent    = d.age_ticks;
+    document.getElementById('pet-weight').textContent = d.weight;
+    document.getElementById('pet-mood').textContent   = d.mood;
+    var box = document.getElementById('sprite-box');
+    if (box) { box.classList.toggle('sleeping', !!d.sleeping); }
+    updateStat('hunger',     d.hunger,     true,  false);
+    updateStat('happiness',  d.happiness,  false, false);
+    updateStat('energy',     d.energy,     false, false);
+    updateStat('hygiene',    d.hygiene,    false, false);
+    updateStat('health',     d.health,     false, false);
+    updateStat('discipline', d.discipline, false, true);
+    updateFlags(d);
+    var sb = document.getElementById('btn-sleep');
+    if (sb) sb.textContent = d.sleeping ? 'wake!' : 'sleep!';
+    if (d.msg) showMsg(d.msg, d.ok);
+    if (!d.alive) {
+      clearInterval(tickTimer);
+      setTimeout(function() { location.reload(); }, 2000);
+    }
+    }
+
+    function updateStat(id, value, invert, neutral) {
+    var row = document.getElementById('stat-' + id);
+    if (!row) return;
+    row.querySelector('.stat-value').textContent = value;
+    var fill = row.querySelector('.stat-bar-fill');
+    fill.style.width = value + '%';
+    if (!neutral) {
+      var color;
+      if (invert) {
+        color = value > 70 ? 'var(--stat-red)' : value > 40 ? 'var(--stat-yellow)' : 'var(--stat-green)';
+      } else {
+        color = value < 30 ? 'var(--stat-red)' : value < 60 ? 'var(--stat-yellow)' : 'var(--stat-green)';
+      }
+      fill.style.background = color;
+    }
+    }
+    function updateFlags(d) {
+    var wrap = document.getElementById('pet-flags');
+    if (!wrap) return;
+
+    function setFlag(key, cls, emoji, label) {
+      var existing = wrap.querySelector('[data-flag="' + key + '"]');
+      if (d[key]) {
+        if (!existing) {
+          var el = document.createElement('span');
+          el.className  = 'flag ' + cls;
+          el.dataset.flag = key;
+          el.textContent = emoji + ' ' + label;
+          wrap.appendChild(el);
+        }
+      } else {
+        if (existing) existing.remove();
+      }
+    }
+
+    setFlag('sleeping',        'flag--sleep', '💤', 'sleeping');
+    setFlag('sick',            'flag--sick',  '🤒', 'sick');
+    setFlag('poop_on_screen',  'flag--poop',  '💩', 'messy');
+    }
+    function showMsg(text, ok) {
+    var log  = document.getElementById('msg-log');
+    var span = document.getElementById('msg-text');
+    span.innerHTML = text + '<span class="cursor"></span>';
+    log.className  = 'msg-log ' + (ok === false ? 'err' : ok ? 'ok' : '');
+    }
+    function setButtons(disabled) {
+    var btns = document.querySelectorAll('#actions-grid .btn');
+    btns.forEach(function(b) { b.disabled = disabled; });
+    }
+
+    tickTimer = setInterval(function() { act('tick'); }, 60000);
+</script>

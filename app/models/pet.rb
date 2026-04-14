@@ -90,10 +90,12 @@ class Pet < ApplicationRecord
     return { ok: false, msg: "#{name} is gone :c" } if dead?
 
     self.hygiene = clamp(hygiene + 40, 0, 100)
-    self.happiness = clamp(happiness - 20, 0, 100) if poop_on_screen? # yes im removing happiness cats hate showers >:3
-    self.poop_on_screen = false
+    self.happiness = clamp(happiness - 20, 0, 100) # yes im removing happiness cats hate showers >:3
+    if poop_on_screen?
+      self.poop_on_screen = false
+    end
     save!
-    { ok: true, msg: "#{name} is squeaky clean! they kinda hated it tho :(()" }
+    { ok: true, msg: "#{name} is squeaky clean! they kinda hated it tho :((" }
   end
 
   def discipline!
